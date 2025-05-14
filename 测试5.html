@@ -260,7 +260,7 @@
           previewImage.style.top = `${y}px`;
 
           // 修改图片路径格式
-          const imgPath = `图片库/${encodeURIComponent(assetId)}/${encodeURIComponent(assetId)}-正面.jpg`;
+          const imgPath = `https://test-1359186450.cos.ap-guangzhou.myqcloud.com/图片库/${encodeURIComponent(assetId)}/${encodeURIComponent(assetId)}-正面.jpg`;
           console.log("加载图片路径:", imgPath);
 
           // 使用Image对象预加载
@@ -275,7 +275,7 @@
 
           loader.onerror = () => {
               console.error("图片加载失败，尝试备用路径");
-              const fallbackPath = `图片库/${encodeURIComponent(assetId)}/${encodeURIComponent(assetId)}.jpg`;
+              const imgPath = `https://test-1359186450.cos.ap-guangzhou.myqcloud.com/图片库/${encodeURIComponent(assetId)}/${encodeURIComponent(assetId)}-正面.jpg`;
               const fallbackLoader = new Image();
               fallbackLoader.src = fallbackPath;
 
@@ -373,84 +373,107 @@
 
 
 
-    function generateTree(data) {
-      treeData = {};
-      data.forEach(item => {
-        const cat1 = item["资产分类"] || "未分类";
-        const cat2 = item["明细分类"] || "";
+function generateTree(data) {
+  treeData = { "全部": {} }; // 添加“全部”分类
 
-        // 初始化分类结构
-        if (!treeData[cat1]) {
-          treeData[cat1] = {};
-        }
-        if (cat2 && !treeData[cat1][cat2]) {
-          treeData[cat1][cat2] = {};
-        }
+  data.forEach(item => {
+    const cat1 = item["资产分类"] || "未分类";
+    const cat2 = item["明细分类"] || "";
 
-        // 动态创建办公家具子类
-        if (cat1 === "办公设备" && cat2 === "办公家具") {
-          const assetName = item["资产名称"] || "";
-
-          // 检查是否属于已知子分类
-          let isKnownSubCategory = false;
-
-          // 柜子子类
-          if (assetName.includes("柜")) {
-            if (!treeData[cat1][cat2]["柜子"]) {
-              treeData[cat1][cat2]["柜子"] = true;
-            }
-            isKnownSubCategory = true;
-          }
-
-          // 椅子&圆凳子类
-          if (assetName.includes("椅") || assetName.includes("凳")) {
-            if (!treeData[cat1][cat2]["椅子&圆凳"]) {
-              treeData[cat1][cat2]["椅子&圆凳"] = true;
-            }
-            isKnownSubCategory = true;
-          }
-
-          // 桌子子类
-          if (assetName.includes("桌")) {
-            if (!treeData[cat1][cat2]["桌子"]) {
-              treeData[cat1][cat2]["桌子"] = true;
-            }
-            isKnownSubCategory = true;
-          }
-
-          // 如果不属于任何已知子分类，则归入"其他"
-          if (!isKnownSubCategory) {
-            if (!treeData[cat1][cat2]["其他"]) {
-              treeData[cat1][cat2]["其他"] = true;
-            }
-          }
-        }
-           // 新增：对其他电子设备的子分类
-        if (cat1 === "办公设备" && cat2 === "其他电子设备") {
-          const assetName = item["资产名称"] || "";
-
-          // 电话机子类
-          if (assetName.includes("电话机")) {
-            if (!treeData[cat1][cat2]["电话机"]) {
-              treeData[cat1][cat2]["电话机"] = true;
-            }
-          }
-          // 其他子类
-          else {
-            if (!treeData[cat1][cat2]["其他"]) {
-              treeData[cat1][cat2]["其他"] = true;
-            }
-          }
-        }
-      });
+    // 初始化“全部”分类
+    if (!treeData["全部"][cat1]) {
+      treeData["全部"][cat1] = {};
+    }
+    if (cat2 && !treeData["全部"][cat1][cat2]) {
+      treeData["全部"][cat1][cat2] = {};
     }
 
-  function buildTree() {
+    // 初始化常规分类
+    if (!treeData[cat1]) {
+      treeData[cat1] = {};
+    }
+    if (cat2 && !treeData[cat1][cat2]) {
+      treeData[cat1][cat2] = {};
+    }
+
+    // 动态创建办公家具子类
+    if (cat1 === "办公设备" && cat2 === "办公家具") {
+      const assetName = item["资产名称"] || "";
+
+      // 检查是否属于已知子分类
+      let isKnownSubCategory = false;
+
+      // 柜子子类
+      if (assetName.includes("柜")) {
+        if (!treeData[cat1][cat2]["柜子"]) {
+          treeData[cat1][cat2]["柜子"] = true;
+        }
+        isKnownSubCategory = true;
+      }
+
+      // 椅子&圆凳子类
+      if (assetName.includes("椅") || assetName.includes("凳")) {
+        if (!treeData[cat1][cat2]["椅子&圆凳"]) {
+          treeData[cat1][cat2]["椅子&圆凳"] = true;
+        }
+        isKnownSubCategory = true;
+      }
+
+      // 桌子子类
+      if (assetName.includes("桌")) {
+        if (!treeData[cat1][cat2]["桌子"]) {
+          treeData[cat1][cat2]["桌子"] = true;
+        }
+        isKnownSubCategory = true;
+      }
+
+      // 如果不属于任何已知子分类，则归入"其他"
+      if (!isKnownSubCategory) {
+        if (!treeData[cat1][cat2]["其他"]) {
+          treeData[cat1][cat2]["其他"] = true;
+        }
+      }
+    }
+
+    // 新增：对其他电子设备的子分类
+    if (cat1 === "办公设备" && cat2 === "其他电子设备") {
+      const assetName = item["资产名称"] || "";
+
+      // 电话机子类
+      if (assetName.includes("电话机")) {
+        if (!treeData[cat1][cat2]["电话机"]) {
+          treeData[cat1][cat2]["电话机"] = true;
+        }
+      }
+      // 其他子类
+      else {
+        if (!treeData[cat1][cat2]["其他"]) {
+          treeData[cat1][cat2]["其他"] = true;
+        }
+      }
+    }
+  });
+}
+function buildTree() {
   const treeContainer = document.getElementById('tree');
   treeContainer.innerHTML = '';
 
   const ul = document.createElement('ul');
+
+  // 添加“全部”分类
+  const allLi = document.createElement('li');
+  const allSpan = document.createElement('span');
+  allSpan.textContent = '全部';
+  allSpan.addEventListener('click', (e) => {
+    setActiveItem(e.target);
+    renderTable(null, null, { name: "全部", keyword: null });
+  });
+  allLi.appendChild(allSpan);
+  ul.appendChild(allLi);
+
   for (let cat1 in treeData) {
+    if (cat1 === "全部") continue; // 跳过“全部”分类本身
+
     const li = document.createElement('li');
     const span = document.createElement('span');
     span.textContent = cat1;
@@ -562,35 +585,43 @@
       target.classList.add('active');
     }
 
-function renderTable(cat1, cat2 = null, subCat = null) {
-  const filtered = allData.filter(item => {
-    const matchCategory = item["资产分类"] === cat1 &&
-                        (cat2 ? item["明细分类"] === cat2 : true);
+function renderTable(cat1 = null, cat2 = null, subCat = null) {
+  let filtered;
 
-    if (!subCat) return matchCategory;
+  if (subCat && subCat.name === "全部") {
+    // 显示所有数据
+    filtered = allData;
+  } else {
+    filtered = allData.filter(item => {
+      const matchCategory = item["资产分类"] === cat1 &&
+                            (cat2 ? item["明细分类"] === cat2 : true);
 
-    const assetName = item["资产名称"] || "";
+      if (!subCat) return matchCategory;
 
-    if (typeof subCat === 'object') {
-      if (!subCat.keyword) {
-        const isKnownSubCategory =
-          assetName.includes("柜") ||
-          assetName.includes("椅") ||
-          assetName.includes("凳") ||
-          assetName.includes("桌");
-        return matchCategory && !isKnownSubCategory;
-      } else {
-        const keywords = subCat.keyword.split('|');
-        return matchCategory &&
-               keywords.some(k => assetName.includes(k));
+      const assetName = item["资产名称"] || "";
+
+      if (typeof subCat === 'object') {
+        if (!subCat.keyword) {
+          const isKnownSubCategory =
+            assetName.includes("柜") ||
+            assetName.includes("椅") ||
+            assetName.includes("凳") ||
+            assetName.includes("桌");
+          return matchCategory && !isKnownSubCategory;
+        } else {
+          const keywords = subCat.keyword.split('|');
+          return matchCategory &&
+                 keywords.some(k => assetName.includes(k));
+        }
       }
-    }
 
-    return matchCategory;
-  });
+      return matchCategory;
+    });
+  }
 
   const title = document.getElementById('title');
-  title.textContent = subCat ? `${cat1} > ${cat2} > ${typeof subCat === 'object' ? subCat.name : subCat}` :
+  title.textContent = subCat && subCat.name === "全部" ? "全部资产" :
+                      subCat ? `${cat1} > ${cat2} > ${typeof subCat === 'object' ? subCat.name : subCat}` :
                               (cat2 ? `${cat1} > ${cat2}` : cat1);
 
   if (filtered.length === 0) {
@@ -599,7 +630,7 @@ function renderTable(cat1, cat2 = null, subCat = null) {
   }
 
   // 根据选择的分类，决定是否显示车架号列
-  const showVehicleInfo = cat1.includes("车辆") || (cat2 && cat2.includes("车辆"));
+  const showVehicleInfo = cat1 && (cat1.includes("车辆") || (cat2 && cat2.includes("车辆")));
 
   const hiddenFields = [
     "大类", "是否固定资产", "资产分类", "明细分类", "进口海运单号",
