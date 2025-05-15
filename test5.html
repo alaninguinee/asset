@@ -260,7 +260,7 @@
           previewImage.style.top = `${y}px`;
 
           // 修改图片路径格式
-          const imgPath = `https://test-1359186450.cos.ap-guangzhou.myqcloud.com/图片库/${encodeURIComponent(assetId)}/${encodeURIComponent(assetId)}-正面.jpg`;
+          const imgPath = `https://test-1359186450.cos.ap-guangzhou.myqcloud.com/缩略图/${encodeURIComponent(assetId)}/${encodeURIComponent(assetId)}-缩略图.jpg`;
           console.log("加载图片路径:", imgPath);
 
           // 使用Image对象预加载
@@ -275,7 +275,7 @@
 
           loader.onerror = () => {
               console.error("图片加载失败，尝试备用路径");
-              const imgPath = `https://test-1359186450.cos.ap-guangzhou.myqcloud.com/图片库/${encodeURIComponent(assetId)}/${encodeURIComponent(assetId)}-正面.jpg`;
+              fallbackLoader.src = `https://test-1359186450.cos.ap-guangzhou.myqcloud.com/缩略图/${encodeURIComponent(assetId)}/${encodeURIComponent(assetId)}-缩略图.jpg`;
               const fallbackLoader = new Image();
               fallbackLoader.src = fallbackPath;
 
